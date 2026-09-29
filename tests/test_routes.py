@@ -68,6 +68,16 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check for the CORS header
         self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
+    
+    def test_internal_server_error(self):
+        """It should handle a 500 Internal Server Error"""
+        from service.common.error_handlers import internal_server_error
+        from werkzeug.exceptions import InternalServerError
+        with app.app_context():
+            response, code = internal_server_error(InternalServerError("boom"))
+            self.assertEqual(code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            data = response.get_json()
+            self.assertEqual(data["error"], "Internal Server Error")
 
     ######################################################################
     #  H E L P E R   M E T H O D S
